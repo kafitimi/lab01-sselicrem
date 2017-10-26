@@ -5,7 +5,7 @@
 #include <windows.h>
 
 int N, M, color;
-
+int count = 0;
 void fillheader(char header[]) {
     int filesize;
     // BITMAPFILEHEADER
@@ -13,7 +13,7 @@ void fillheader(char header[]) {
     ZeroMemory(&bfh, sizeof(bfh));
     
     bfh.bfType = 0x4d42;                        // сигнатура, должно быть 'BM'
-    bfh.bfSize = color==2 ? 54 + M*ceil(3 * N / 4.0) * 4 : 54 + M*ceil(N / 4.0) * 4 + 256 * 4;                            // исправить размер файла
+	bfh.bfSize = (color == 2) ? 54 + M*ceil(3 * N / 4.0) * 4 : 54 + M * ceil(N / 4.0) * 4 + 1024;                            // исправить размер файла
     bfh.bfReserved1 = 0;                        //
     bfh.bfReserved2 = 0;                        //
     bfh.bfOffBits = color ? 54 : 54 + 256 * 4;    // начало пиксельных данных, чб добавляет размер палитры
@@ -33,33 +33,38 @@ void fillheader(char header[]) {
 
 
 void filldata(char data[], int **r, int **g, int **b) {
-    int i, j,k=0;
-	int linesize = ceil(3 * N / 4.0) * 4;
+    int i, j;
+	int linesize = ceil(3 * N / 4.0) * 4; //12,36
+	int k = 0;
 	if (color == 2)
 	{
 		for (i = M - 1; i >= 0; i--)
 		{
 			for (j = 0; j < N; j++)
 			{
-				if (color == 2)
-				{
-					data[(M - 1 - i) * linesize + j * 3] = b[i][j];
-					data[(M - 1 - i) * linesize + j * 3 + 1] = g[i][j];
-					data[(M - 1 - i) * linesize + j * 3 + 2] = r[i][j];
-				}
+				data[(M - 1 - i) * linesize + j * 3] = b[i][j];
+				data[(M - 1 - i) * linesize + j * 3 + 1] = g[i][j];
+				data[(M - 1 - i) * linesize + j * 3 + 2] = r[i][j];				
 			}
 		}
 	}
-	else
+	else // То ли так, то ли эдак
+	/*{
+		linesize = ceil(N / 4.0) * 4;
+		for (i = 0; i <M; i++) {
+			for (j = 0; j < N; j++) {
+				data[(i) * linesize + (j)] = b[i][j];
+			}
+		}
+	}*/
 	{
-		for (i = M - 1; i >= 0; i--)
-		{
-			for (j = 0; j < N; j++)
-			{
-				data[k++] = b[i][j];
-			}
+		linesize = ceil(N / 4.0) * 4;
+	for (i = M - 1; i >= 0; i--) {
+		for (j = 0; j < N; j++) {
+			data[(M - 1 - i) * linesize + (j)] = b[i][j];
 		}
 	}
+}
     // заполнить данные.
     // учесть: записывать снизу вверх, в цветном файле порядок b, g, r
     // в случае чб есть только b
@@ -70,7 +75,7 @@ void fillpalette(char palette[]) {
 	// если чб, надо заполнять palette байтами
 	int i, j=0;
 	int linesize = ceil(3 * N / 4.0) * 4;
-	for (i = 0; i < 1020; i += 4)
+	for (i = 0; i < 1024; i += 4)
 	{
 		palette[i] = j;
 		palette[i + 1] = j;
