@@ -5,7 +5,7 @@
 #include <windows.h>
 
 int N, M, color;
-int count = 0;
+
 void fillheader(char header[]) {
     int filesize;
     // BITMAPFILEHEADER
@@ -34,7 +34,7 @@ void fillheader(char header[]) {
 
 void filldata(char data[], int **r, int **g, int **b) {
     int i, j;
-	int linesize = ceil(3 * N / 4.0) * 4; //12,36
+	int linesize = ceil(3 * N / 4.0) * 4;
 	int k = 0;
 	if (color == 2)
 	{
@@ -48,15 +48,7 @@ void filldata(char data[], int **r, int **g, int **b) {
 			}
 		}
 	}
-	else // То ли так, то ли эдак
-	/*{
-		linesize = ceil(N / 4.0) * 4;
-		for (i = 0; i <M; i++) {
-			for (j = 0; j < N; j++) {
-				data[(i) * linesize + (j)] = b[i][j];
-			}
-		}
-	}*/
+	else 
 	{
 		linesize = ceil(N / 4.0) * 4;
 	for (i = M - 1; i >= 0; i--) {
