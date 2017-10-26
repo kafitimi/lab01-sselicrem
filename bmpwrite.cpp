@@ -13,7 +13,7 @@ void fillheader(char header[]) {
     ZeroMemory(&bfh, sizeof(bfh));
     
     bfh.bfType = 0x4d42;                        // сигнатура, должно быть 'BM'
-    bfh.bfSize = color==2 ? 54 + M*ceil(3 * N / 4.0) * 4 : 54 + M*ceil(3 * N / 4.0) * 4 + 256 * 4;                            // исправить размер файла
+    bfh.bfSize = color==2 ? 54 + M*ceil(3 * N / 4.0) * 4 : 54 + M*ceil(N / 4.0) * 4 + 256 * 4;                            // исправить размер файла
     bfh.bfReserved1 = 0;                        //
     bfh.bfReserved2 = 0;                        //
     bfh.bfOffBits = color ? 54 : 54 + 256 * 4;    // начало пиксельных данных, чб добавляет размер палитры
@@ -33,7 +33,7 @@ void fillheader(char header[]) {
 
 
 void filldata(char data[], int **r, int **g, int **b) {
-    int i, j;
+    int i, j,k=0;
 	int linesize = ceil(3 * N / 4.0) * 4;
 	if (color == 2)
 	{
@@ -52,14 +52,11 @@ void filldata(char data[], int **r, int **g, int **b) {
 	}
 	else
 	{
-		for (i=0;i<M;i++)
+		for (i = M - 1; i >= 0; i--)
 		{
-			for (j = N - 1; j >= 0; j--)
+			for (j = 0; j < N; j++)
 			{
-				data[i * linesize + N - 1 + j*3] = b[i][j];
-				data[i * linesize + N - 1 + j*3 + 1] = b[i][j];
-				data[i * linesize + N - 1 + j *3+ 2] = b[i][j];
-				
+				data[k++] = b[i][j];
 			}
 		}
 	}
@@ -120,7 +117,7 @@ int main(char argc, char* argv[]) {
     char header[54];
     char palette[4 * 256];
 
-    int datasize = color==2 ? M * ceil(3 * N / 4.0) * 4 : M * ceil(3 * N / 4.0) * 4;   // !!!!!!! размер пиксельных данных, чтобы размер строки был кратен 4 байтам
+    int datasize = color==2 ? M * ceil(3 * N / 4.0) * 4 : M * ceil( N / 4.0) * 4;   // !!!!!!! размер пиксельных данных, чтобы размер строки был кратен 4 байтам
                                                             // исправить для чб случая, сейчас заглушка в виде 1.
     char* data = new char[datasize];
 
